@@ -1,0 +1,19 @@
+{
+  "name": "express-starter",
+  "description": "foo",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "coffee-script": "latest",
+    "express": "3.x",
+    "jade": "*",
+    "mongoose": "2.7.0",
+    "connect-assets": "*"
+  },
+  "scripts": {
+    "start": "nodemon app.coffee"
+  },
+  "devDependencies": {
+    "nodemon": "*"
+  }
+}

@@ -1,0 +1,19 @@
+extends layout
+
+block content
+	style.
+		h2 {background: blue}
+	- var name = "matt";
+	- var followers = 2;
+
+
+	h2= title
+	ul
+		li= name
+	p.
+		hello
+		world
+		this is #{name}
+	p
+		if followers === 2
+			| You have 2 follower
