@@ -7,6 +7,7 @@
     "coffee-script": "latest",
     "express": "3.x",
     "jade": "*",
+    "mongodb": ">= 0.9.6-7",
     "mongoose": "2.7.0",
     "connect-assets": "*"
   },
