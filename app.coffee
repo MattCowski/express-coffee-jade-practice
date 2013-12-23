@@ -29,9 +29,20 @@ app.get "/users", (req, res) =>
   Users.find {}, (err, docs) =>
     res.render 'users/index', { users: docs }
 
-# NEW
-app.get "/users/new", (req, res) =>
-  res.render "users/new"
+# # NEW
+# app.get "/users/new", (req, res) =>
+#   res.render "users/new"
+
+# app.post "/users", (req, res) =>
+#   b = req.body
+#   new Users({
+#       name: b.name,
+#       email: b.email,
+#       age: b.age
+#     }).save (err, user) =>
+#       if (err)
+#         res.json err
+#       res.redirect '/users/' + user.name
 
 
 http.createServer(app).listen app.get('port'), ->
