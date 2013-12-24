@@ -53,12 +53,6 @@ UserSchema = new mongoose.Schema(
     remember_token: String
   })
 Users = mongoose.model 'Users', UserSchema
-# INDEX
-app.get "/users", (req, res) =>
-  # res.send "fooo"
-
-  Users.find { remember_token: req.cookies.remember_token }, (err, docs) =>
-    res.render 'users/index', { users: docs }
 
 app.get '/', (req, res) ->
   res.render "home", { title: "Nav would go hererere"}
@@ -67,12 +61,20 @@ app.get '/about', (req, res) ->
   message = "<h1>Site is made by Matt</h1>"
   res.send message
   # res.type('image/png').send('imageurl')
+
+# INDEX
+app.get "/users", (req, res) =>
+  Users.find { remember_token: req.cookies.remember_token }, (err, docs) =>
+    res.render 'users/index', { users: docs }
+
 # NEW
 app.get "/users/new", (req, res) =>
   res.render "users/new"
 
 app.post "/users", (req, res) =>
   b = req.body
+  res.cookie('guestId', b.name)
+
   b.remember_token = req.cookies.remember_token
   new Users({
       name: b.name,
