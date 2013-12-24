@@ -1,2 +1,1 @@
-# Todo
-* gitignore
+# MEAN Kickstarter

@@ -1,0 +1,11 @@
+//- extends layout
+
+h1 New User
+form(method="POST" action="/users")
+  p Name:
+    input#name(type="text" name="name")
+  p email:
+    input#email(type="text" name="email")
+  p age:
+    input#age(type="text" name="age")
+  p: button(type="submit") Create
