@@ -3,29 +3,43 @@ mongoose = require 'mongoose'
 http = require "http"
 app = express()
 mongo = require 'mongodb'
+# passport = require 'passport'
 
 mongoUri = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || 'mongodb://localhost/mydb'
 
+# TODO: is this mandatory for Heroku?
 mongo.Db.connect mongoUri, (err, db) =>
   db.collection 'mydocs', (er, collection) =>
     collection.insert {'mkey': 'myvalue'}, {safe: true}, (er, rs) =>
+
+# # Passport
+# app.post('/login', passport.authenticate('local', { successRedirect: '/', failureRedirect: '/login' }))
 
 app.configure ->
   app.set "port", process.env.PORT or 4000
   app.set 'views', __dirname + '/views'
   app.set 'view engine', 'jade'
 
-  app.use(express.bodyParser())
   app.use(express.urlencoded())
   app.use(express.json())
   #  faux HTTP method for put delete
   app.use(express.methodOverride())
 #   # search list of our routes before you do vvv
+
+  # app.use (req, res) ->
+  #   res.send 404, "four oh four"
+
+  app.use (err, req, res, next) ->
+    res.status(err.status or 404)
+    res.send err.message
+  app.use express.cookieParser()
+  app.use express.session({secret: 'this is secret'})
   app.use(app.router)
   app.use(express.static(__dirname + "/public"))
 
+
 mongoose.connect mongoUri
-# db = Mongoose.createConnection('localhost', 'zaiste')
+
 db = mongoose.connection
 db.on 'error', console.error.bind(console, 'connection error:')
 db.once 'open', callback = () =>
@@ -35,25 +49,36 @@ UserSchema = new mongoose.Schema(
   {
     name: String,
     email: String,
-    age: Number
+    age: Number,
+    remember_token: String
   })
 Users = mongoose.model 'Users', UserSchema
 # INDEX
 app.get "/users", (req, res) =>
   # res.send "fooo"
-  Users.find {}, (err, docs) =>
+
+  Users.find { remember_token: req.cookies.remember_token }, (err, docs) =>
     res.render 'users/index', { users: docs }
 
+app.get '/', (req, res) ->
+  res.render "home", { title: "Nav would go hererere"}
+# no name? reply with default
+app.get '/about', (req, res) ->
+  message = "<h1>Site is made by Matt</h1>"
+  res.send message
+  # res.type('image/png').send('imageurl')
 # NEW
 app.get "/users/new", (req, res) =>
   res.render "users/new"
 
 app.post "/users", (req, res) =>
   b = req.body
+  b.remember_token = req.cookies.remember_token
   new Users({
       name: b.name,
       email: b.email,
-      age: b.age
+      age: b.age,
+      remember_token: b.remember_token
     }).save (err, user) =>
       if (err)
         res.json err
@@ -67,6 +92,11 @@ app.param 'name', (req, res, next, name) =>
 # SHOW
 app.get '/users/:name', (req, res) =>
   res.render 'users/show', { user: req.user }
+
+# # FIXME
+# app.get '/users/:name?', (req, res) ->
+#   res.send(req.param('name', 'default value'))
+
 
 # EDIT
 app.get '/users/:name/edit', (req, res) =>
@@ -87,6 +117,27 @@ app.delete '/users/:name', (req, res) =>
   Users.remove({ name: req.params.name }, (err) =>
     res.redirect '/users'
     )
+
+
+# res.cookie(name, value, { expires: new Date() ...})
+
+app.get '/guest/:guestId', (req, res) ->
+  # res.cookie('guestId', req.params.guestId).send('<p>cookie is <a href="/guest"> here</a></p>')
+  # req.session.guest = req.params.guest
+  # res.send('<p>Session is <a href="/guest"> here</a></p>')
+
+app.get '/guest', (req, res) ->
+  # res.clearCookie('guest').send(req.cookies.guest)
+  # res.send(req.cookies.guestId)
+  # res.send req.session.guest
+
+
+
+
+
+
+
+
 
 
 http.createServer(app).listen app.get('port'), ->
