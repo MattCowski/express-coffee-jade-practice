@@ -2,6 +2,13 @@ express  = require 'express'
 mongoose = require 'mongoose'
 http = require "http"
 app = express()
+mongo = require 'mongodb'
+
+mongoUri = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || 'mongodb://localhost/mydb'
+
+mongo.Db.connect mongoUri, (err, db) =>
+  db.collection 'mydocs', (er, collection) =>
+    collection.insert {'mkey': 'myvalue'}, {safe: true}, (er, rs) =>
 
 app.configure ->
   app.set "port", process.env.PORT or 4000
@@ -17,7 +24,7 @@ app.configure ->
   app.use(app.router)
   app.use(express.static(__dirname + "/public"))
 
-mongoose.connect "mongodb://localhost/test"
+mongoose.connect mongoUri
 # db = Mongoose.createConnection('localhost', 'zaiste')
 db = mongoose.connection
 db.on 'error', console.error.bind(console, 'connection error:')
